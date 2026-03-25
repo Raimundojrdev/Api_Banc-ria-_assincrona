@@ -29,15 +29,16 @@ API simples de operações bancárias desenvolvida com **FastAPI**, utilizando a
 ## 📁 Estrutura do projeto
 
 ```
+alembic/           # Migrações do banco
 app/
 │
-├── models/        # Modelos do banco de dados
-├── schemas/       # Schemas (Pydantic)
-├── routes/        # Rotas da API
-├── database/      # Conexão com o banco
 ├── core/          # Segurança (JWT, hash)
+├── database/      # conexão com banco
+├── models/        # Modelos dos bancos de dados
+├── routes/        # Rotas da Api
+├── schemas/       # Schemas (Pydantic)
 │
-alembic/           # Migrações do banco
+
 ```
 
 ---
