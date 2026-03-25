@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -9,18 +10,20 @@ from datetime import datetime, timedelta
 
 security = HTTPBearer()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+load_dotenv()
+
+SECRET_KEY = "teste123"
 ALGORITHM = "HS256"
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt_sha256"], deprecated="auto")
 
 
-def hash_password(password: str):
-    return pwd_context.hash(password[:72])
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
 
 
-def verify_password(password: str, hashed: str):
-    return pwd_context.verify(password[:72], hashed)
+def verify_password(password: str, hashed: str) -> bool:
+    return pwd_context.verify(password, hashed)
 
 
 def create_token(sup: str):
@@ -32,14 +35,17 @@ def create_token(sup: str):
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)):
-    try:
-        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user = payload.get("sub")
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
 
-        if user is None:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+
+        if username is None:
             raise HTTPException(status_code=401, detail="Token inválido")
-        return user
+
+        return username
 
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
